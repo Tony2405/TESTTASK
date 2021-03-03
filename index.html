@@ -82,9 +82,10 @@
                 let interm = JSON.parse(stateJSON); 
                 SPAState.setList(interm.list)
                 console.log(SPAState.getList())} 
-            else {SPAState.setList(); console.log('URL is empty'); console.log(SPAState.getList());
+            else {SPAState.setList([]); console.log('URL is empty'); console.log(SPAState.getList());
                 let smth = fromLocalStorage('locStored_tag_list')
                 console.log( 'taken from LS '+ smth)
+                if(smth === null ){ SPAState.setList([])}
                 SPAState.setList(smth)}
             console.log('new state');
 
@@ -124,9 +125,10 @@
         // ADD
             function addTag(){              
                 let input_tag_name = document.getElementById('inp').value;
-                console.log(parseInt(input_tag_name))
-                if (input_tag_name != '' && input_tag_name != ' ' && parseInt(input_tag_name) === NaN){ //проверка ввода
-                SPAState.getList().push(input_tag_name);}
+                let input_tag_name_type = parseInt(input_tag_name)
+                console.log(input_tag_name_type)
+                if (input_tag_name != '' && input_tag_name != ' ' && isNaN(input_tag_name) == true) //проверка ввода
+                SPAState.getList().push(input_tag_name);//}
                 switchToState({list :  SPAState.getList()})
                 putInLocalStorage('locStored_tag_list', SPAState.getList())
                 };
