@@ -86,8 +86,9 @@
                 let smth = fromLocalStorage('locStored_tag_list')
                 console.log( 'taken from LS '+ smth)
                 if(smth === null ){ SPAState.setList([])}
-                SPAState.setList(smth)}
+                else {SPAState.setList(smth)}}
             console.log('new state');
+            console.log (SPAState.getList())
 
             let listHTML="";
             
