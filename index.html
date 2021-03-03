@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #toprint{
+            max-width: 300px;
+            height: 200px;
+            background-color: cyan;
+            position: relative;
+        }
+        .peg{
+            position:relative;
+            width: 100px;
+            margin: 0px;
+            padding: 0px;
+        }
+        .X{ width: auto;
+            height:auto;
+            color:darkred;
+            opacity: 0.4;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: 700;
+            position:absolute;
+            right: 5px;
+            z-index: 1;
+            outline: none;
+          
+                    }
+        .X:hover, :active{
+            color: darkorange;
+                       }
+        
+        input{
+            width: 100px;
+            text-align: left;
+            outline: none;
+            position:relative;
+            }
+    </style>
+    <script src="https://kit.fontawesome.com/a413a42ef2.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    
+    <input type="text" class ='inp' id="inp" placeholder="enter tag name" name="inp" >
+    <input type="button" class ='inp' id="add_btn" value='add'>
+    <div id='toprint'></div>
+    <input type="button" value="Readonly ON" onclick="readOnlyON()"><input type="button" value='Readonly OFF' onclick="readOnlyOFF()">
+ 
+
+    <script>
+        'use strict'
+            let bodyelem = document.body
+            let add_btn = document.getElementById('add_btn');
+            add_btn.addEventListener('click', addTag, false);
+            document.addEventListener("keydown", function(EO){
+                if (EO.code == "Enter") addTag();
+                });
+        
+        function TagList(value){
+            let secure_list = value; // список в приватной переменной
+            this.getList = function(){ // getter
+            return secure_list;}
+            this.setList = function(value){  // setter
+                if(typeof value !== Array) {
+                    secure_list = value;}
+                else {console.log("Invalid data!")}}
+            };
+
+        window.onhashchange = switchToStateFromURLHash; // автообновление
+
+        let SPAState = new TagList([]);
+        console.log(SPAState)
+
+        function switchToStateFromURLHash(){
+            let URLHash = window.location.hash;
+            let stateJSON = decodeURIComponent(URLHash.substr(1));
+            if (stateJSON != "") {
+                let interm = JSON.parse(stateJSON); 
+                SPAState.setList(interm.list)
+                console.log(SPAState.getList())} 
+            else {SPAState.setList(); console.log('URL is empty'); console.log(SPAState.getList());
+                let smth = fromLocalStorage('locStored_tag_list')
+                console.log( 'taken from LS '+ smth)
+                SPAState.setList(smth)}
+            console.log('new state');
+
+            let listHTML="";
+            
+            if(SPAState.list == ''){listHTML += "<div>Cписок пуст.</div>"}
+            else{
+            for (let i = 0; i < SPAState.getList().length; i++){
+                if (SPAState.getList()[i] === null) listHTML += "nothing";
+                else listHTML += "<div class='peg'><input type='button' value="+SPAState.getList()[i]+"><button class='X' id='delB' onclick='deleteItemFromList(this)'><i class='fas fa-times'></i></button></input></div>";
+            }}
+            
+            document.getElementById("toprint").innerHTML = listHTML;
+            };   //от switchToStateFromURLHash
+
+        //to localStorage
+            function putInLocalStorage(key, value){
+                let toStore = JSON.stringify(value);
+                localStorage.setItem(key, toStore )
+                };
+
+        // from localStorage
+            function fromLocalStorage(key){
+                let from_LS = localStorage.getItem(key);
+                let unstringified_stored_list = JSON.parse(from_LS);
+                return unstringified_stored_list;
+                console.log(unstringified_stored_list);
+            };
+
+
+        // location.hash
+            function switchToState(newState){  
+                location.hash = encodeURIComponent(JSON.stringify(newState));
+                console.log(location.hash)
+                };
+
+        // ADD
+            function addTag(){              
+                let input_tag_name = document.getElementById('inp').value;
+                console.log(parseInt(input_tag_name))
+                if (input_tag_name != '' && input_tag_name != ' ' && parseInt(input_tag_name) === NaN){ //проверка ввода
+                SPAState.getList().push(input_tag_name);}
+                switchToState({list :  SPAState.getList()})
+                putInLocalStorage('locStored_tag_list', SPAState.getList())
+                };
+
+        // DELETE
+            function deleteItemFromList(item){
+                let parent = item.parentNode;
+                let grandParent = parent.parentNode;
+                let children_array = grandParent.children;
+                let newarray = [];
+                for (let i=0; i < children_array.length; i++){
+                    newarray[i] = children_array[i]
+                };
+                let idx = newarray.indexOf(parent)
+                SPAState.getList().splice(idx, 1);
+                switchToState({list :  SPAState.getList()})
+                putInLocalStorage('locStored_tag_list', SPAState.getList())
+                };
+
+        // READONLY ON
+            function readOnlyON(){                  
+                let inp = document.getElementById('inp');
+                inp.setAttribute('readonly', true)
+                let addBTN = document.getElementById("add_btn");
+                addBTN.setAttribute("disabled", "disabled");
+                let deleteBTN = document.getElementsByClassName("X");
+                console.log(deleteBTN.length)
+                for (let i=0; i< deleteBTN.length; i++){
+                deleteBTN[i].setAttribute("disabled", "disabled")
+                }
+                };
+        // READONLY OFF
+            function readOnlyOFF(){      
+                let inp = document.getElementById('inp');
+                inp.removeAttribute('readonly')
+                let addBTN = document.getElementById("add_btn");
+                addBTN.removeAttribute("disabled");
+                let deleteBTN = document.getElementsByClassName("X");
+                console.log(deleteBTN.length)
+                for (let i=0; i< deleteBTN.length; i++){
+                deleteBTN[i].removeAttribute("disabled");
+                }
+                };
+        
+    switchToStateFromURLHash();
+
+    </script>
+    
+</body>
+</html>
